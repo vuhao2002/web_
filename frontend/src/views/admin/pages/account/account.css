@@ -1,0 +1,39 @@
+.mainAccount {
+    display: flex;
+    flex-direction: column;
+}
+
+.navAccount {
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+ .createAccount {
+    float: right;
+    height: 45px;
+    width: 100px;
+    border: 0.5px solid lightgray;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.54);
+    font-weight: 600;
+    color: #888;
+    line-height: 20px;
+}
+
+.createAccount:hover {
+    background: lightgray;
+}
+
+select {
+  width: 100%;
+  padding: 12px 20px;
+  /* margin: 8px 0; */
+  border-radius: 10px;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+/* input[type="text"]:hover {
+    background: lightgray;
+} */
