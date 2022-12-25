@@ -11,3 +11,11 @@ export const ADD_POST = 'ADD_POST'
 export const DELETE_POST = 'DELETE_POST'
 export const UPDATE_POST = 'UPDATE_POST'
 export const FIND_POST = 'FIND_POST'
+
+// Admin - account
+export const ACCOUNT_LOADED_SUCCESS = "ACCOUNT_LOADED_SUCCESS"
+export const ACCOUNT_LOADED_FAIL = "ACCOUNT_LOADED_FAIL"
+export const ADD_ACCOUNT = "ADD_ACCOUNT"
+export const DELETE_ACCOUNT = "DELETE_ACCOUNT "
+export const UPDATE_ACCOUNT = "UPDATE_ACCOUNT"
+export const FIND_ACCOUNT = "FIND_ACCOUNT"

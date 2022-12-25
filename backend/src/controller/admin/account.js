@@ -1,4 +1,4 @@
-const Acount = require('../../models/Account')
+const Account = require('../../models/Account')
 const bcrypt = require('bcrypt')
 
 function test() {
@@ -7,48 +7,54 @@ function test() {
 
 module.exports = {
 
-    // [GET] /admin/acount => 1 role ...
-    getAcounts: async (req, res) => {
-        const role = req.role
-        const productlines = await Acount.find({ role }).select('name_acount').lean()
+    // [GET] /admin/account => 1 role ...
+    getAccounts: async (req, res) => {
+        const accounts = await Account.find({}).lean()
 
-        return res.status(200).json({ message: 'Created Success', productlines })
+        return res.status(200).json({ success: true, message: 'Get Success', accounts })
     },
 
-    // [POST] /admin/acount/create
-    createAcount: async (req, res) => {
-        const { role, username, password } = req.body
+    // [POST] /admin/account/create
+    createAccount: async (req, res) => {
+        try {
+            const { role = '', username = '', password = '' } = req.body
 
-        const acount = await Acount.findOne({ username }).lean()
-        if (acount) {
-            res.status(400).json({ message: 'Acount is exist' })
+            const account = await Account.findOne({ username }).lean()
+
+            if (account) {
+                return res.status(400).json({ message: 'Account is exist' })
+            }
+
+            const salt = await bcrypt.genSalt(10)
+            const hashedPassword = await bcrypt.hash(password, salt)
+
+            const newAccount = new Account({
+                role, username,
+                password: hashedPassword
+            })
+
+            await newAccount.save()
+
+            res.status(201).json({ success: true, message: 'Create Account Success', account: newAccount })
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Internal Error', error })
         }
 
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
 
-        const newAcount = new Acount({
-            role, username,
-            password: hashedPassword
-        })
-
-        await newAcount.save()
-
-        res.status(201).json({ message: 'Create Acount Success' })
     },
 
-    // [Delete] /admin/acount/:id
-    deleteAcount: async (req, res) => {
+    // [Delete] /admin/account/:id
+    deleteAccount: async (req, res) => {~
         const _id = req.params.id
 
-        const acount = await Acount.findOne({ _id })
-        if (acount) {
-            res.status(400).json({ message: 'Acount is not exist' })
+        const account = await Account.findOne({ _id })
+        if (account) {
+            res.status(400).json({ message: 'Account is not exist' })
         }
 
-        await acount.deleteOne({ _id })
+        await account.deleteOne({ _id })
 
-        res.status(201).json({ message: 'Create Acount Success' })
+        res.status(201).json({ message: 'Create Account Success' })
     }
 
 }

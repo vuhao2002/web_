@@ -26,6 +26,7 @@ const AuthContextProvider = ({ children }) => {
                     type: 'SET_AUTH',
                     payload: {
                         isAuthenticated: true,
+                        role: response.data.user.role,
                         user: response.data.user,
                     },
                 });

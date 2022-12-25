@@ -16,9 +16,9 @@ exports.login = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Invalid password' })
     }
 
-    const accessToken = jwt.sign({ userId: account._id }, config.accessTokenSecret)
+    const accessToken = jwt.sign({ userId: account._id, role: account.role }, config.accessTokenSecret)
 
-    res.status(200).json({ success: true, message: 'Login successful', accessToken: accessToken })
+    res.status(200).json({ success: true, message: 'Login successful', accessToken: accessToken, account })
 }
 
 exports.register = async (req, res) => {
@@ -41,12 +41,12 @@ exports.register = async (req, res) => {
 
         // All good
         const hashedPassword = await bcrypt.hash(password, salt)
-        const newUser = new Account({ username, password: hashedPassword, role: "admin" })
+        const newUser = new Account({ username, password: hashedPassword })
         await newUser.save()
 
         // Return token
         const accessToken = jwt.sign(
-            { userId: newUser._id },
+            { userId: newUser._id, role: newUser.role },
             process.env.ACCESS_TOKEN_SECRET
         )
 

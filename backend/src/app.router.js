@@ -9,9 +9,9 @@ router.put('/productline', productLineController.editProductLine)
 router.delete('/productline', productLineController.deleteProductLine)
 
 const accountController = require('./controller/admin/account')
-router.get('/account', accountController.getAcounts)
-router.post('/account/create', accountController.createAcount)
-router.delete('/account/:id', accountController.deleteAcount)
+router.get('/admin/account', accountController.getAccounts)
+router.post('/admin/account/create', accountController.createAccount)
+router.delete('/admin/account/:id', accountController.deleteAccount)
 
 
 const authController = require('./controller/auth')

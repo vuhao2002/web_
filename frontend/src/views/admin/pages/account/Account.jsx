@@ -2,206 +2,210 @@ import './account.css';
 import '../../../../assets/css/common.css';
 import Sidebar from '../../sidebar/Sidebar';
 import Navbar from '../../../../components/navbar/Navbar';
-
 import Table from '../../../../components/table/Table';
-import Product from '../../../../components/product/Product';
-import { BiSearchAlt2 } from 'react-icons/bi';
+import ModalAccount from '../../../../components/modal/ModalAccount';
+import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
+
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import { GridActionsCellItem, GridRowModes } from '@mui/x-data-grid';
 
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useForm } from 'react-hook-form';
+import ModalMessage from '../../../../components/layout/ModalMessage';
+import { AdminContext } from '../../../../contexts/AdminContext';
 
-export default function AccountManagement() {
-    const height = 631;
+export default function Products() {
     const [showCreate, setShowCreate] = useState(false);
+    const [showModal, setShowModal] = React.useState(false);
+    const [isEdit, setIsEdit] = React.useState(false);
+    const [alert, setAlert] = useState(null);
+    let idRef = React.useRef(0);
+
+    const {
+        getAccounts,
+        addAccount,
+        showToast: { show, message, type },
+        setShowToast,
+        accountState: { accounts, accountLoading },
+    } = useContext(AdminContext);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        setValue,
+    } = useForm();
+
+    useEffect(() => {
+        getAccounts();
+        return () => {};
+    }, []);
+
+    const columns = [
+        { headerName: 'Id', field: 'id', flex: 1 },
+        { headerName: 'Name', field: 'username', flex: 1, headerAlign: 'center', align: 'center' },
+        { headerName: 'Role', field: 'role', width: 150, headerAlign: 'center', align: 'center' },
+        {
+            headerName: 'Status',
+            field: 'status',
+            width: 150,
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<DeleteIcon />}
+                        label="Delete"
+                        onClick={handleDeleteClick(id)}
+                        color="inherit"
+                    />,
+                ];
+            },
+        },
+    ];
+
+    const handleEditClick = (id) => () => {
+        console.log(id);
+        setShowCreate(!showCreate);
+        setIsEdit(true);
+
+        // goi query den database => lay gia tri r dien vao
+        setValue('name', '15');
+        setValue('password', '1545');
+        setValue('role', 'admin');
+    };
+
+    const handleDeleteClick = (id) => () => {
+        console.log(id);
+        setShowModal(true);
+        idRef.current = id;
+    };
+
+    const handleDelete = () => {
+        const id = idRef.current || 1;
+        console.log('id: ', id);
+        setShowModal(false);
+    };
 
     const toggleShowCreate = () => {
         setShowCreate(!showCreate);
+        setIsEdit(false);
+        reset({
+            name: '',
+            password: '',
+            role: 'admin',
+        });
     };
 
-    const { register, handleSubmit } = useForm();
+    let body = null;
+    if (accountLoading) {
+        body = (
+            <div className="spinner-container">
+                <Spinner animation="border" variant="info" />
+            </div>
+        );
+    } else {
+        body = (
+            <Table
+                {...{
+                    columns,
+                    rows: accounts,
+                }}
+            />
+        );
+    }
 
-    const onSubmit = (data) => {
+    // Submit btn
+    const onSubmit = async (data) => {
         console.log(data);
+
+        if (isEdit) {
+        } else {
+            const { success, message } = await addAccount(data);
+            setShowCreate(false);
+
+            setShowToast({
+                show: true,
+                message,
+                type: success ? 'success' : 'danger',
+            });
+        }
+
+        reset(data);
     };
 
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Raj',
-            email: 'Raj@gmail.com',
-            phone: 7894561230,
-            age: null,
-            gender: 'M',
-            city: 'Chennai',
-            fee: 78456,
-        },
-        {
-            id: 2,
-            name: 'Mohan',
-            email: 'mohan@gmail.com',
-            phone: 7845621590,
-            age: 35,
-            gender: 'M',
-            city: 'Delhi',
-            fee: 456125,
-        },
-        {
-            id: 3,
-            name: 'Sweety',
-            email: 'sweety@gmail.com',
-            phone: 741852912,
-            age: 17,
-            gender: 'F',
-            city: 'Noida',
-            fee: 458796,
-        },
-        {
-            id: 4,
-            name: 'Vikas',
-            email: 'vikas@gmail.com',
-            phone: 9876543210,
-            age: 20,
-            gender: 'M',
-            city: 'Mumbai',
-            fee: 874569,
-        },
-        {
-            id: 5,
-            name: 'Neha',
-            email: 'neha@gmail.com',
-            phone: 7845621301,
-            age: 25,
-            gender: 'F',
-            city: 'Patna',
-            fee: 748521,
-        },
-        {
-            id: 6,
-            name: 'Mohan',
-            email: 'mohan@gmail.com',
-            phone: 7845621590,
-            age: 35,
-            gender: 'M',
-            city: 'Delhi',
-            fee: 456125,
-        },
-        {
-            id: 7,
-            name: 'Sweety',
-            email: 'sweety@gmail.com',
-            phone: 741852912,
-            age: 17,
-            gender: 'F',
-            city: 'Noida',
-            fee: 458796,
-        },
-        {
-            id: 8,
-            name: 'Vikas',
-            email: 'vikas@gmail.com',
-            phone: 9876543210,
-            age: 20,
-            gender: 'M',
-            city: 'Mumbai',
-            fee: 874569,
-        },
-        {
-            id: 9,
-            name: 'Raj',
-            email: 'Raj@gmail.com',
-            phone: 7894561230,
-            age: null,
-            gender: 'M',
-            city: 'Chennai',
-            fee: 78456,
-        },
-        {
-            id: 10,
-            name: 'Mohan',
-            email: 'mohan@gmail.com',
-            phone: 7845621590,
-            age: 35,
-            gender: 'M',
-            city: 'Delhi',
-            fee: 456125,
-        },
-        {
-            id: 11,
-            name: 'Sweety',
-            email: 'sweety@gmail.com',
-            phone: 741852912,
-            age: 17,
-            gender: 'F',
-            city: 'Noida',
-            fee: 458796,
-        },
-        {
-            id: 12,
-            name: 'Vikas',
-            email: 'vikas@gmail.com',
-            phone: 9876543210,
-            age: 20,
-            gender: 'M',
-            city: 'Mumbai',
-            fee: 874569,
-        },
-    ]);
+    const argsModal = {
+        title: 'Remove account',
+        body: 'Do you want to delete this account?',
+        handleDelete,
+        setShowModal,
+        showModal,
+    };
 
-    const columns = [
-        { title: 'Id', field: 'id', width: 90, editable: true },
-        { title: 'Name', field: 'name', width: 120, editable: true },
-        { title: 'Email', field: 'email', width: 200, editable: true },
-        { title: 'Phone Number', field: 'phone', width: 120, editable: true },
-        { title: 'Age', field: 'age', width: 90, editable: true },
-        { title: 'Gender', field: 'gender', width: 120, editable: true },
-        { title: 'City', field: 'city', width: 120, editable: true },
-        { title: 'School Fee', field: 'fee', width: 90, editable: true },
-    ];
+    const argsModalProductLine = {
+        toggleShowCreate,
+        handleSubmit,
+        register,
+        errors,
+        onSubmit,
+        isEdit,
+    };
 
     return (
         <div className="wrapper-body">
             <Sidebar />
             <div className="wrapper-content">
-                <Navbar />
-                <div className="mainAccount">
-                    <div className="navAccount">
-                        <button className="createAccount" onClick={toggleShowCreate}>
-                            Create Account
-                        </button>
+                <Navbar title="Account" />
+                <div className="group-btn">
+                    <div className="center">
+                        <input type="text" className="input" />
+                        <button className="c-btn">Search</button>
                     </div>
-                    <Table {...{ columns, rows, setRows, height }} />
+                    <button className="btn btn-success" onClick={toggleShowCreate}>
+                        Add Account
+                    </button>
                 </div>
-            </div>
 
-            {showCreate && (
-                <div className="model">
-                    <div onClick={toggleShowCreate} className="overlay"></div>
-                    <form className="content" onSubmit={handleSubmit(onSubmit)}>
-                        <label className="row">
-                            Name
-                            <input {...register('name')} placeholder="enter name" />
-                        </label>
-                        <label className="row">
-                            Username
-                            <input {...register('username')} placeholder="enter username" />
-                        </label>
-                        <label className="row">
-                            Email
-                            <input {...register('email')} placeholder="enter email" />
-                        </label>
-                        <label className="row">
-                            Type Account
-                            <select {...register('gender')}>
-                                <option value="female">female</option>
-                                <option value="male">male</option>
-                                <option value="other">other</option>
-                            </select>
-                        </label>
-                        <input type="submit" />
-                    </form>
-                </div>
-            )}
+                {body}
+
+                {showCreate && <ModalAccount {...argsModalProductLine} />}
+                {/* // (isEdit ? (
+                        // ) : (
+                        //     <ModalAccount {...argsModalProductLine} />
+                        // ))} */}
+
+                {showModal && <ModalMessage {...argsModal} />}
+            </div>
+            <Toast
+                show={show}
+                style={{ position: 'fixed', top: '20%', right: '10px' }}
+                className={`bg-${type} text-white`}
+                onClose={() => setShowToast({ show: false, message: '', type: null })}
+                delay={3000}
+                autohide
+            >
+                <Toast.Body>
+                    <strong>{message}</strong>
+                </Toast.Body>
+            </Toast>
         </div>
     );
 }

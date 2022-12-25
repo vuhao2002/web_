@@ -14,7 +14,7 @@ const verifyToken = (req, res, next) => {
         const decoded = jwt.verify(token, config.accessTokenSecret)
 
         req.userId = decoded.userId
-
+        req.role = decoded.role
         next()
     } catch (error) {
         console.log(error);

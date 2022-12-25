@@ -15,7 +15,6 @@ function App() {
   return (
     <AuthContextProvider>
       <PostContextProvider>
-        {/* <Test /> */}
         <Admin />
       </PostContextProvider>
     </AuthContextProvider>

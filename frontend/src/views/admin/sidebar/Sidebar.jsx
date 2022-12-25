@@ -39,8 +39,8 @@ export default function Sidebar() {
                         </li>
                     </NavLink>
 
-                    <NavLink style={{ textDecoration: 'none' }} to="/accountManagement">
-                        <li title="accountManagement">
+                    <NavLink style={{ textDecoration: 'none' }} to="/account">
+                        <li title="account">
                             <BsPerson className="icon" />
                             <span>Account</span>
                         </li>

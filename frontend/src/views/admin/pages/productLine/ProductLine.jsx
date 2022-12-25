@@ -3,11 +3,10 @@ import '../../../../assets/css/common.css';
 import Sidebar from '../../sidebar/Sidebar';
 import Navbar from '../../../../components/navbar/Navbar';
 import Table from '../../../../components/table/Table';
+import ModalProductLine from '../../../../components/modal/ModalProductLine';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
 import { GridActionsCellItem, GridRowModes } from '@mui/x-data-grid';
 
 import React from 'react';
@@ -21,22 +20,26 @@ export default function Products() {
     const [rowModesModel, setRowModesModel] = React.useState({});
     const [showCreate, setShowCreate] = useState(false);
     const [show, setShow] = React.useState(false);
+    const [isEdit, setIsEdit] = React.useState(false);
     let idRef = React.useRef(0);
 
-    const handleEditClick = (id, name, email) => () => {
-        // setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        setValue,
+    } = useForm();
+
+    const handleEditClick = (id) => () => {
         console.log(id);
-        console.log(name);
         setShowCreate(!showCreate);
+        setIsEdit(true);
+
+        // goi query den database => lay gia tri r dien vao
         setValue('code', '15');
         setValue('name', '1545');
         setValue('description', '1545');
-    };
-
-    const handleSaveClick = (id) => () => {
-        console.log(rowModesModel);
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-        console.log(rowModesModel[id]);
     };
 
     const handleDeleteClick = (id) => () => {
@@ -51,18 +54,6 @@ export default function Products() {
         console.log('id: ', id);
         setRows(rows.filter((row) => row.id !== id));
         setShow(false);
-    };
-
-    const handleCancelClick = (id) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
-
-        const editedRow = rows.find((row) => row.id === id);
-        if (editedRow.isNew) {
-            setRows(rows.filter((row) => row.id !== id));
-        }
     };
 
     const [rows, setRows] = useState([
@@ -203,26 +194,7 @@ export default function Products() {
             headerName: 'Actions',
             width: 100,
             cellClassName: 'actions',
-            getActions: ({ id, name }) => {
-                handleEditClick(id, name);
-                const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-                if (isInEditMode) {
-                    return [
-                        <GridActionsCellItem
-                            icon={<SaveIcon />}
-                            label="Save"
-                            onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            icon={<CancelIcon />}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
-                    ];
-                }
-
+            getActions: ({ id }) => {
                 return [
                     <GridActionsCellItem
                         icon={<EditIcon />}
@@ -244,6 +216,7 @@ export default function Products() {
 
     const toggleShowCreate = () => {
         setShowCreate(!showCreate);
+        setIsEdit(false);
         reset({
             code: '',
             name: '',
@@ -251,15 +224,14 @@ export default function Products() {
         });
     };
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset,
-        setValue,
-    } = useForm();
+    // Submit btn
     const onSubmit = (data) => {
         console.log(data);
+
+        if (isEdit) {
+        } else {
+        }
+
         reset(data);
     };
 
@@ -269,6 +241,15 @@ export default function Products() {
         handleDelete,
         setShow,
         show,
+    };
+
+    const argsModalProductLine = {
+        toggleShowCreate,
+        handleSubmit,
+        register,
+        errors,
+        onSubmit,
+        isEdit,
     };
 
     return (
@@ -285,46 +266,6 @@ export default function Products() {
                         Add Product
                     </button>
                 </div>
-                {showCreate && (
-                    <div className="modal-product-line">
-                        <div onClick={toggleShowCreate} className="overlay"></div>
-                        <form className="content" onSubmit={handleSubmit(onSubmit)}>
-                            <span className="center title-2">Create Product Line</span>
-                            <label className="row">
-                                Code
-                                <input
-                                    {...register('code', { required: true })}
-                                    placeholder="XM_2512"
-                                    className="input"
-                                />
-                            </label>
-                            {errors.code && <span className="error">This field is required</span>}
-                            <label className="row">
-                                Name
-                                <input
-                                    {...register('name', { required: true })}
-                                    placeholder="Honda"
-                                    className="input"
-                                />
-                            </label>
-                            {errors.name && <span className="error">This field is required</span>}
-                            <label className="row">
-                                Description
-                                <textarea
-                                    {...register('description', { required: true })}
-                                    placeholder="..."
-                                    className="textarea"
-                                />
-                            </label>
-                            {errors.description && (
-                                <span className="error">This field is required</span>
-                            )}
-                            <button className="btn btn-success">Create</button>
-                        </form>
-                    </div>
-                )}
-
-                {show && <ModalMessage {...argsModal} />}
 
                 <Table
                     {...{
@@ -336,6 +277,15 @@ export default function Products() {
                         setRowModesModel,
                     }}
                 />
+                
+                {showCreate &&
+                    (isEdit ? (
+                        <ModalProductLine {...argsModalProductLine} />
+                    ) : (
+                        <ModalProductLine {...argsModalProductLine} />
+                    ))}
+
+                {show && <ModalMessage {...argsModal} />}
             </div>
         </div>
     );

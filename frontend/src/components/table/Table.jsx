@@ -1,35 +1,13 @@
 import { Box } from '@mui/material';
+import React from 'react';
 
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
-import React from 'react';
 import { useState } from 'react';
+import './table.css';
 
-const Table = ({
-    columns,
-    rows,
-    setRows,
-    height,
-    rowModesModel,
-    setRowModesModel,
-    handleOnCellClick,
-}) => {
+const Table = ({ columns, rows, setRows, checkboxSelection, handleOnCellClick }) => {
     const [pageSize, setPageSize] = useState(10);
-
-    const handleRowEditStart = (params, event) => {
-        event.defaultMuiPrevented = true;
-    };
-
-    const handleRowEditStop = (params, event) => {
-        event.defaultMuiPrevented = true;
-    };
-
-    const processRowUpdate = (newRow) => {
-        console.log(newRow);
-        const updatedRow = { ...newRow, isNew: false };
-        setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-        return updatedRow;
-    };
 
     const initState = {
         columns: {
@@ -38,39 +16,30 @@ const Table = ({
             },
         },
     };
-    
 
     return (
-        <div className="mainProduct">
+        <div style={{ flex: 1 }}>
             <Box
                 className="box"
                 sx={{
-                    height: height,
                     width: '100%',
+                    height: '100%',
                 }}
                 style={{
                     cursor: 'pointer',
                 }}
             >
                 <DataGrid
+                    rowHeight={45}
                     initialState={initState}
-                    className="datagid"
+                    className=""
                     columns={columns}
-                    checkboxSelection
+                    checkboxSelection={checkboxSelection}
                     rows={rows}
-                    getRowId={rows.id}
                     pagination
                     pageSize={pageSize}
                     onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
                     rowsPerPageOptions={[10, 20, 40]}
-                    editMode="row"
-                    responsive
-                    rowModesModel={rowModesModel}
-                    onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-                    onRowEditStart={handleRowEditStart}
-                    onRowEditStop={handleRowEditStop}
-                    processRowUpdate={processRowUpdate}
-                    experimentalFeatures={{ newEditingApi: true }}
                     onCellClick={handleOnCellClick}
                     onSelectionModelChange={(item) => console.log(item)}
                 />
